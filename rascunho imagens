@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import os
 
 # Inicializando o pygame
 pygame.init()
@@ -29,18 +30,24 @@ mensagem = ""
 vidas = 5  # Começa com 5 corações
 estrelas = 0  # Contador de acertos
 
-# Lista de palavras para cada fonema
-palavras_por_fonema = {
-    "/s/": ["sol", "sino", "suco", "sopa", "sala"],
-    "/t/": ["tigre", "tatu", "tijolo", "trem", "tênis"],
-    "/p/": ["pato", "peixe", "pipoca", "pente", "porta"],
-    "/m/": ["mala", "mesa", "muro", "moto", "macaco"]
-}
+# Diretório de imagens
+IMAGES_DIR = r"C:\Users\Marcela\Desktop\Python\Jogo Consciencia Fonologica\imagens"  # Atualize o caminho conforme necessário
 
-def desenhar_texto(texto, x, y, color=BLACK):
-    render = font.render(texto, True, color)
-    screen.blit(render, (x, y))
+# Lista de fonemas disponíveis
+fonemas_disponiveis = ["S", "L", "M", "N", "P", "T", "C", "G", "B", "F", "V"]
 
+# Carregar imagens por fonema
+def carregar_imagens():
+    imagens = {}
+    for fonema in fonemas_disponiveis:
+        caminho = os.path.join(IMAGES_DIR, fonema)
+        if os.path.exists(caminho):
+            imagens[fonema] = [pygame.image.load(os.path.join(caminho, img)) for img in os.listdir(caminho) if img.endswith(".png")]
+    return imagens
+
+imagens_por_fonema = carregar_imagens()
+
+# Botão para interações
 def botao(texto, x, y, w, h, cor, acao=None):
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
@@ -50,17 +57,19 @@ def botao(texto, x, y, w, h, cor, acao=None):
             acao()
     else:
         pygame.draw.rect(screen, cor, (x, y, w, h))
-    desenhar_texto(texto, x + 10, y + 10)
+    render = font.render(texto, True, BLACK)
+    screen.blit(render, (x + 10, y + 10))
 
+# Funções para selecionar idade e fonema
 def set_idade(valor):
     global idade, etapa
     idade = valor
-    etapa = 2
+    etapa = 2  # Avança para a etapa de escolha de fonema
 
 def set_fonema(valor):
     global fonema, etapa
     fonema = valor
-    etapa = 3
+    etapa = 3  # Avança para a etapa de iniciar o jogo
 
 def voltar(nova_etapa):
     global etapa
@@ -70,14 +79,14 @@ def iniciar_jogo():
     global etapa, mensagem
     if idade is None or fonema is None:
         mensagem = "Por favor, selecione a idade e o fonema."
-        etapa = 1
+        etapa = 1  # Retorna à tela de seleção
     else:
         mensagem = ""
-        etapa = 4
+        etapa = 4  # Inicia o jogo
 
-def verificar_resposta(palavra):
+def verificar_resposta(fonema_imagem):
     global vidas, estrelas, etapa
-    if palavra in palavras_por_fonema[fonema]:
+    if fonema_imagem == fonema:
         estrelas += 1  # Acerto
     else:
         vidas -= 1  # Erro
@@ -85,16 +94,25 @@ def verificar_resposta(palavra):
         etapa = 5  # Tela de Game Over
 
 def desenhar_tabuleiro():
-    desenhar_texto("Escolha uma palavra:", 50, 50)
+    desenhar_texto("Escolha uma imagem:", 50, 50)
     x, y = 50, 100
-    palavras = palavras_por_fonema[fonema] + ["erro1", "erro2", "erro3", "erro4"]
-    random.shuffle(palavras)
-    for palavra in palavras:
-        botao(palavra, x, y, 150, 50, GRAY, lambda p=palavra: verificar_resposta(p))
-        x += 170
-        if x > WIDTH - 150:
-            x = 50
-            y += 60
+    imagens = imagens_por_fonema.get(fonema, []) + sum([imagens_por_fonema.get(f, []) for f in fonemas_disponiveis if f != fonema], [])
+    random.shuffle(imagens)  # Mistura as imagens, mas as coloca paradas na tela
+    posicoes = []  # Para guardar as posições das imagens e garantir que fiquem espalhadas
+    
+    for img in imagens[:8]:  # Exibir apenas algumas imagens
+        pos_x = random.randint(50, WIDTH - 100)
+        pos_y = random.randint(100, HEIGHT - 150)
+        while (pos_x, pos_y) in posicoes:  # Verifica se a posição já foi ocupada
+            pos_x = random.randint(50, WIDTH - 100)
+            pos_y = random.randint(100, HEIGHT - 150)
+        posicoes.append((pos_x, pos_y))  # Armazena a posição da imagem
+        screen.blit(img, (pos_x, pos_y))
+        botao("", pos_x, pos_y, 100, 100, GRAY, lambda f=fonema: verificar_resposta(f))
+
+def desenhar_texto(texto, x, y, color=BLACK):
+    render = font.render(texto, True, color)
+    screen.blit(render, (x, y))
 
 def desenhar_game_over():
     screen.fill(WHITE)
@@ -114,7 +132,7 @@ while running:
     elif etapa == 2:
         desenhar_texto("Selecione o fonema:", 50, 100)
         x, y = 50, 150
-        for f in palavras_por_fonema.keys():
+        for f in fonemas_disponiveis:
             botao(f, x, y, 100, 40, GRAY, lambda f=f: set_fonema(f))
             x += 120
             if x > WIDTH - 100:
@@ -131,9 +149,11 @@ while running:
         desenhar_texto(f"Estrelas: {estrelas} ⭐", 600, 90, BLACK)
     elif etapa == 5:
         desenhar_game_over()
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+    
     pygame.display.flip()
     clock.tick(30)
 
