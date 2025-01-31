@@ -118,18 +118,36 @@ def desenhar_tabuleiro():
     global posicoes_imagens
     desenhar_texto("Escolha uma imagem:", 50, 50)
     
+    # Definir o número de linhas e colunas
+    num_linhas = 2
+    num_colunas = 4
+    espacamento_x = 150  # Espaçamento horizontal entre as imagens
+    espacamento_y = 150  # Espaçamento vertical entre as imagens
+    largura_imagem = 100  # Largura da imagem
+    altura_imagem = 100  # Altura da imagem
+    
     # Se as posições ainda não foram definidas, defina-as
     if not posicoes_imagens:
         imagens = imagens_por_fonema.get(fonema, []) + sum([imagens_por_fonema.get(f, []) for f in fonemas_disponiveis if f != fonema], [])
         random.shuffle(imagens)  # Mistura as imagens
         
-        for img in imagens[:8]:  # Exibir apenas algumas imagens
-            pos_x = random.randint(50, WIDTH - 150)  # Ajuste para garantir que a imagem caiba na tela
-            pos_y = random.randint(100, HEIGHT - 150)
-            while any(abs(pos_x - px) < 120 and abs(pos_y - py) < 120 for (_,px, py) in posicoes_imagens):  # Verifica sobreposição
-                pos_x = random.randint(50, WIDTH - 150)
-                pos_y = random.randint(100, HEIGHT - 150)
-            posicoes_imagens.append((img, pos_x, pos_y))  # Armazena a imagem e sua posição
+        # Calcular o ponto inicial para centralizar as imagens na tela
+        start_x = (WIDTH - (num_colunas * (largura_imagem + espacamento_x))) // 2
+        start_y = (HEIGHT - (num_linhas * (altura_imagem + espacamento_y))) // 2
+        
+        # Posicionar as imagens na grade
+        for i in range(num_linhas):
+            for j in range(num_colunas):
+                if len(imagens) > 0:
+                    img = imagens.pop()  # Remove a última imagem da lista
+                    pos_x = start_x + j * (largura_imagem + espacamento_x)
+                    pos_y = start_y + i * (altura_imagem + espacamento_y)
+                    posicoes_imagens.append((img, pos_x, pos_y))  # Armazena a imagem e sua posição
+    
+    # Desenha as imagens nas posições armazenadas
+    for img, pos_x, pos_y in posicoes_imagens:
+        screen.blit(img, (pos_x, pos_y))
+        botao("", pos_x, pos_y, largura_imagem, altura_imagem, GRAY, lambda f=img: verificar_resposta(f))
     
     # Desenha as imagens nas posições armazenadas
     for img, pos_x, pos_y in posicoes_imagens:
