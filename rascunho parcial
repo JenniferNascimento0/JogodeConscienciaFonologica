@@ -102,7 +102,7 @@ while running:
         desenhar_texto("Selecione o fonema:", 50, 100)
         fonemas = ["/p/", "/b/", "/t/", "/d/", "/s/", "/ʃ/", "/f/", "/v/", "/m/", "/n/", "/l/", "/r/", "/ɾ/"]
         x, y = 50, 150
-        for i, f in enumerate(fonemas):
+        for i in range (len(fonemas)):
             botao(f, x, y, 100, 40, GRAY, lambda f=f: set_fonema(f))  
             x += 120
             if (i + 1) % 5 == 0:  # Mudar linha a cada 5 botões
