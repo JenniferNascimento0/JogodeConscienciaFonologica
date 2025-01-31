@@ -148,6 +148,36 @@ while running:
         desenhar_texto(f"Idade: {idade}, Fonema: {fonema}", 50, 150)
         botao("Iniciar Jogo", 50, 250, 200, 50, GRAY, iniciar_jogo)
         botao("Voltar", 50, 500, 100, 40, GRAY, lambda: voltar(2))
+# Mensagens encorajadoras
+mensagens_positivas = [
+    "Muito bem! Continue assim!",
+    "Ótimo trabalho! Você está indo muito bem!",
+    "Parabéns! Você acertou!",
+    "Incrível! Vamos para a próxima!",
+    "Super! Você está arrasando!"
+]
+
+# Função para verificar resposta
+def verificar_resposta(imagem):
+    global vidas, estrelas, etapa, mensagem_encorajadora
+    fonema_imagem = None
+    for f, imgs in imagens_por_fonema.items():
+        if imagem in imgs:
+            fonema_imagem = f
+            break
+    if fonema_imagem == fonema:
+        estrelas += 1  # Acerto
+        mensagem_encorajadora = random.choice(mensagens_positivas)
+    else:
+        vidas -= 1  # Erro
+        mensagem_encorajadora = ""  # Sem mensagem positiva para erro
+    if vidas == 0:
+        etapa = 5  # Tela de Game Over
+
+# Função para desenhar mensagens encorajadoras
+def desenhar_mensagem_encorajadora():
+    if mensagem_encorajadora:
+        desenhar_texto(mensagem_encorajadora, 50, HEIGHT - 50, GREEN)
     elif etapa == 4:
         desenhar_tabuleiro()
         desenhar_texto(f"Vidas: {vidas} ❤", 600, 50, RED)
