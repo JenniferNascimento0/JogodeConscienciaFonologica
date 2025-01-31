@@ -1,0 +1,129 @@
+import pygame
+import sys
+
+# Inicializando o pygame
+pygame.init()
+
+# Dimensões da janela
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Jogo de Consciência Fonológica")
+
+# Cores
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BLUE = (70, 130, 180)
+GRAY = (200, 200, 200)
+
+# Fontes
+font = pygame.font.Font(None, 36)
+
+# Estados iniciais
+idade = None
+fonema = None
+etapa = 1  # Variável que controla a etapa do menu (1 = idade, 2 = fonema, 3 = jogo)
+mensagem = ""  # Definindo a variável mensagem desde o começo
+
+# Funções auxiliares
+def desenhar_texto(texto, x, y, color=BLACK):
+    render = font.render(texto, True, color)
+    screen.blit(render, (x, y))
+
+def botao(texto, x, y, w, h, cor, acao=None):
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+
+    if x + w > mouse[0] > x and y + h > mouse[1] > y:
+        pygame.draw.rect(screen, BLUE, (x, y, w, h))
+        if click[0] == 1 and acao is not None:
+            acao()
+    else:
+        pygame.draw.rect(screen, cor, (x, y, w, h))
+
+    desenhar_texto(texto, x + 10, y + 10)
+
+# Funções para definir idade e fonema
+def set_idade(valor):
+    global idade
+    idade = valor
+    global etapa
+    etapa = 2  # Após escolher a idade, vai para a seleção de fonema
+
+def set_fonema(valor):
+    global fonema
+    fonema = valor
+    global etapa
+    etapa = 3  # Após escolher o fonema, vai para a etapa do jogo
+
+def iniciar_jogo():
+    global etapa
+    if idade is None or fonema is None:
+        global mensagem
+        mensagem = "Por favor, selecione a idade e o fonema."
+        etapa = 1  # Se faltar algum dado, volta para a tela inicial
+    else:
+        mensagem = ""  # Limpa a mensagem
+        etapa = 4  # Após escolher o fonema, vai para o tabuleiro de jogo
+
+# Função para desenhar o tabuleiro
+def desenhar_tabuleiro():
+    # Aqui você pode adicionar o código para desenhar o tabuleiro com as imagens dos fonemas
+    # Exemplo simples, criando círculos como placeholders para as imagens
+    num_imagens = 12  # Número de imagens
+    spacing_x = WIDTH // 4
+    spacing_y = HEIGHT // 3
+    for i in range(num_imagens):
+        x = (i % 4) * spacing_x + 50  # Posição X (espalhando as imagens)
+        y = (i // 4) * spacing_y + 150  # Posição Y (na linha)
+        pygame.draw.circle(screen, (255, 0, 0), (x, y), 40)  # Representação de imagem
+
+# Loop principal
+clock = pygame.time.Clock()
+running = True
+while running:
+    screen.fill(WHITE)
+
+    # Título
+    desenhar_texto("Jogo de Consciência Fonológica", 200, 50, BLACK)
+
+    if etapa == 1:
+        # Tela de seleção de idade
+        desenhar_texto("Selecione a idade:", 50, 100)
+        botao("Menos de 7 anos", 50, 150, 200, 50, GRAY, lambda: set_idade("Menos de 7"))
+        botao("7 anos ou mais", 300, 150, 200, 50, GRAY, lambda: set_idade("7 ou mais"))
+        
+    elif etapa == 2:
+        # Tela de seleção de fonema (para ambas as idades)
+        desenhar_texto("Selecione o fonema:", 50, 100)
+        fonemas = ["/p/", "/b/", "/t/", "/d/", "/s/", "/ʃ/", "/f/", "/v/", "/m/", "/n/", "/l/", "/r/", "/ɾ/"]
+        x, y = 50, 150
+        for i, f in enumerate(fonemas):
+            botao(f, x, y, 100, 40, GRAY, lambda f=f: set_fonema(f))
+            x += 120
+            if (i + 1) % 5 == 0:  # Mudar linha a cada 5 botões
+                x = 50
+                y += 60
+                
+    elif etapa == 3:
+        # Tela de confirmação de dados e botão para iniciar jogo
+        desenhar_texto(f"Idade: {idade}, Fonema: {fonema}", 50, 150)
+        botao("Iniciar Jogo", 50, 250, 200, 50, GRAY, iniciar_jogo)
+
+    elif etapa == 4:
+        # Tela do tabuleiro de jogo
+        desenhar_tabuleiro()
+
+    # Mensagem de status
+    if etapa < 4:  # Só desenha a mensagem nas etapas 1, 2 e 3
+        desenhar_texto(mensagem, 50, 500)
+
+    # Eventos
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    pygame.display.flip()
+    clock.tick(30)
+
+pygame.quit()
+sys.exit()
