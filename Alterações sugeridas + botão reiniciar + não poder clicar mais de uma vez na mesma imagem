@@ -1,0 +1,256 @@
+import pygame
+import sys
+import random
+import os
+
+# Inicialização do pygame
+pygame.init()
+
+# Dimensões da janela
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Jogo de Consciência Fonológica")
+
+caminho_pasta = os.path.dirname(os.path.realpath(__file__))
+
+# Cores
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BLUE = (70, 130, 180)
+GRAY = (200, 200, 200)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+
+# Fontes
+font = pygame.font.Font(None, 36)
+
+# Estados iniciais
+idade = None
+fonema = None
+etapa = 1  # Controle da etapa do menu
+exibiu = False
+exibiu_etapa2 = False
+mensagem = ""
+vidas = 5  # Começa com 5 corações
+estrelas = 0  # Contador de acertos
+
+# Diretório de imagens
+IMAGES_DIR = caminho_pasta + r".\imagens"  # Atualize o caminho conforme necessário
+
+# Lista de fonemas disponíveis
+fonemas_disponiveis = ["S", "L", "M", "N", "P", "T", "C", "G", "B", "F", "V"]
+
+imagens_clicadas = []  # Lista para armazenar imagens já clicadas
+
+# Carregar imagens por fonema
+def carregar_imagens():
+    imagens = {}
+    for fonema in fonemas_disponiveis:
+        caminho = os.path.join(IMAGES_DIR, fonema)
+        if os.path.exists(caminho):
+            imagens[fonema] = [(pygame.image.load(os.path.join(caminho, img)), os.path.join(caminho, img)) 
+                               for img in os.listdir(caminho) if img.endswith(".png")]
+    return imagens
+
+# Função para desenhar o botão de escolha
+def botao(texto, x, y, w, h, cor, acao=None):
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+    if x + w > mouse[0] > x and y + h > mouse[1] > y:
+        pygame.draw.rect(screen, BLUE, (x, y, w, h))
+        if click[0] == 1 and acao is not None:
+            acao()
+    else:
+        pygame.draw.rect(screen, cor, (x, y, w, h))
+    render = font.render(texto, True, BLACK)
+    screen.blit(render, (x + 10, y + 10))
+
+def reiniciar_jogo():
+    global idade, fonema, etapa, exibiu, exibiu_etapa2, mensagem, vidas, estrelas, imagens_clicadas
+    idade = None
+    fonema = None
+    etapa = 1
+    exibiu = False
+    exibiu_etapa2 = False
+    mensagem = ""
+    vidas = 5
+    estrelas = 0
+    imagens_clicadas = []  # Limpa a lista de imagens clicadas
+# Funções para selecionar idade e fonema
+def set_idade(valor):
+    global idade, etapa, exibiu_etapa2
+    idade = valor
+    etapa = 2  # Avança para a etapa de escolha de fonema
+    exibiu_etapa2 = False
+
+def set_fonema(valor):
+    global fonema, etapa, exibiu
+    fonema = valor
+    etapa = 3  # Avança para a etapa de iniciar o jogo
+    exibiu = False
+
+def voltar(nova_etapa):
+    global etapa, exibiu
+    etapa = nova_etapa
+    exibiu = False
+
+def iniciar_jogo():
+    global etapa, mensagem, exibiu, imagens_totais
+    if idade is None or fonema is None:
+        mensagem = "Por favor, selecione a idade e o fonema."
+        etapa = 1  # Retorna à tela de seleção
+        exibiu = False
+    else:
+        mensagem = ""
+        etapa = 4  # Inicia o jogo
+        exibiu = False
+        # Embaralha as imagens apenas uma vez ao iniciar o jogo
+        imagens = imagens_por_fonema.get(fonema, [])
+        imagens_outros_fonemas = []
+        for f in fonemas_disponiveis:
+            if f != fonema:
+                imagens_outros_fonemas.extend(imagens_por_fonema.get(f, []))
+        imagens_totais = imagens + imagens_outros_fonemas[:14]
+        random.shuffle(imagens_totais)  # Embaralha as imagens
+
+def verificar_resposta(imagem, fonema):
+    global vidas, estrelas, etapa, exibiu, imagens_totais, imagens_clicadas
+    
+    # Verifica se a imagem já foi clicada
+    if imagem in imagens_clicadas:
+        return  # Ignora o clique se a imagem já foi clicada
+    
+    # Adiciona a imagem à lista de clicadas
+    imagens_clicadas.append(imagem)
+    
+    nome_arquivo = os.path.basename(imagem)
+    nome_sem_extensao = os.path.splitext(nome_arquivo)[0]
+
+    if fonema.lower() in nome_sem_extensao.lower():
+        estrelas += 1  # Acerto
+        mensagem = "Parabéns, continue assim!"
+    else:
+        vidas -= 1  # Erro
+        mensagem = "Errado:( Tente outra vez!"
+    
+    if vidas <= 0:
+        etapa = 5  # Tela de Game Over        
+    elif estrelas >= 10:
+        etapa = 6  # Tela de Vitória
+    else:
+        etapa = 4  # Continua o jogo
+        
+    # Exibir mensagem de feedback
+    desenhar_texto(mensagem, WIDTH//2 - 50, HEIGHT - 50, GREEN if mensagem == "Parabéns, continue assim!" else RED)
+    pygame.display.flip()
+    pygame.time.delay(1000)  # Pausa para mostrar a mensagem
+
+def desenhar_tabuleiro(imagens_totais):
+    desenhar_texto("Escolha uma imagem:", 50, 50)
+
+    posicoes = []
+    largura_imagem = 100
+    altura_imagem = 100
+    espaco = 20
+    colunas = 6
+    linhas = 4 
+
+    for linha in range(linhas): 
+        for coluna in range(colunas):
+            index = linha * colunas + coluna
+            if index >= len(imagens_totais):
+                break
+
+            img, img_caminho = imagens_totais[index]
+
+            rect = pygame.Rect(
+                coluna * (largura_imagem + espaco) + 50,
+                linha * (altura_imagem + espaco) + 100,
+                largura_imagem,
+                altura_imagem
+            )
+
+            img_redimensionada = pygame.transform.scale(img, (rect.width, rect.height))
+
+            posicoes.append((rect, img_caminho))
+
+            mouse = pygame.mouse.get_pos()
+            if rect.x + largura_imagem > mouse[0] > rect.x and rect.y + altura_imagem > mouse[1] > rect.y:
+                pygame.draw.rect(screen, BLUE, (rect.x, rect.y, largura_imagem, altura_imagem))
+            else:
+                pygame.draw.rect(screen, GRAY, (rect.x, rect.y, largura_imagem, altura_imagem))
+                
+            screen.blit(img_redimensionada, rect.topleft)
+    return posicoes
+
+def desenhar_texto(texto, x, y, color=BLACK):
+    render = font.render(texto, True, color)
+    screen.blit(render, (x, y))
+
+def desenhar_game_over():
+    screen.fill(WHITE)
+    desenhar_texto("Game Over!", WIDTH//2 - 70, HEIGHT//2, RED)
+    desenhar_texto(f"Estrelas coletadas: {estrelas}", WIDTH//2 - 100, HEIGHT//2 + 40, BLACK)
+
+def desenhar_vitoria():
+    screen.fill(WHITE)
+    desenhar_texto("Parabéns, você venceu!", WIDTH//2 - 120, HEIGHT//2, GREEN)
+    desenhar_texto(f"Estrelas coletadas: {estrelas}", WIDTH//2 - 100, HEIGHT//2 + 40, BLACK)
+
+imagens_por_fonema = carregar_imagens()
+
+# Loop principal do jogo
+clock = pygame.time.Clock()
+running = True
+posicoes = []
+
+while running:
+    screen.fill(WHITE)
+    
+    desenhar_texto("Jogo de Consciência Fonológica", 200, 20)
+
+    if etapa == 1:
+        desenhar_texto("Selecione a idade:", 50, 100)
+        botao("Menos de 7 anos", 50, 150, 200, 50, GRAY, lambda: set_idade("Menos de 7"))
+        botao("7 anos ou mais", 300, 150, 200, 50, GRAY, lambda: set_idade("7 ou mais"))
+    elif etapa == 2:    
+        desenhar_texto("Selecione o fonema:", 50, 100)
+        x, y = 50, 250
+        for f in fonemas_disponiveis:
+            botao(f, x, y, 100, 40, GRAY, lambda f=f: set_fonema(f))
+            x += 120
+            if x > WIDTH - 100:
+                x = 50
+                y += 60
+        botao("Voltar", 50, 500, 100, 40, GRAY, lambda: voltar(1))
+    elif etapa == 3:        
+        desenhar_texto(f"Idade: {idade}, Fonema: {fonema}", 50, 150)
+        botao("Iniciar Jogo", 150, 250, 200, 50, GRAY, iniciar_jogo)
+        botao("Voltar", 50, 500, 100, 40, GRAY, lambda: voltar(2))
+    elif etapa == 4:        
+        posicoes = desenhar_tabuleiro(imagens_totais)
+        desenhar_texto(f"Vidas: {vidas} ❤", 600, 50, RED)
+        desenhar_texto(f"Estrelas: {estrelas} ⭐", 600, 90, BLACK)
+    if etapa == 5:  # Tela de Game Over
+        desenhar_game_over()
+        botao("Reiniciar", WIDTH//2 - 75, HEIGHT//2 + 100, 200, 40, GRAY, reiniciar_jogo)
+    elif etapa == 6:  # Tela de Vitória
+       desenhar_vitoria()
+       botao("Reiniciar", WIDTH//2 - 75, HEIGHT//2 + 100, 200, 40, GRAY, reiniciar_jogo)
+
+    
+        
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN and etapa == 4:
+            mouse_pos = event.pos
+            for rect_img, caminho_img in posicoes:
+                if rect_img.collidepoint(mouse_pos):
+                    verificar_resposta(caminho_img, fonema)
+    
+    pygame.display.flip()
+    clock.tick(15)
+
+pygame.quit()
+sys.exit()
