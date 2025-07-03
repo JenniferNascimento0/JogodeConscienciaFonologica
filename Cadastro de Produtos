@@ -1,0 +1,125 @@
+import javax.swing.*;
+import java.awt.Color;
+import helper_classes.*;
+
+public class WindowBuilder {
+  public static void main(String[] args) {
+
+     JFrame frame = new JFrame("Cadastro de produtos");
+     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+     frame.setSize(643, 346);
+     JPanel panel = new JPanel();
+     panel.setLayout(null);
+     panel.setBackground(Color.decode("#eeeeee"));
+
+     JLabel element1 = new JLabel("CADASTRAR  PRODUTO");
+     element1.setBounds(294, 28, 183, 18);
+     element1.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element1.setForeground(Color.decode("#1b1b1b"));
+     panel.add(element1);
+
+     JLabel element2 = new JLabel("Nome:");
+     element2.setBounds(107, 68, 144, 23);
+     element2.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element2.setForeground(Color.decode("#1b1b1b"));
+     panel.add(element2);
+
+     JLabel element3 = new JLabel("Descrição:");
+     element3.setBounds(110, 108, 106, 18);
+     element3.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element3.setForeground(Color.decode("#1b1b1b"));
+     panel.add(element3);
+
+     JLabel element4 = new JLabel("Preço de custo:");
+     element4.setBounds(112, 152, 106, 18);
+     element4.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element4.setForeground(Color.decode("#1b1b1b"));
+     panel.add(element4);
+
+     JLabel element5 = new JLabel("Preço de venda:");
+     element5.setBounds(113, 188, 106, 18);
+     element5.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element5.setForeground(Color.decode("#1b1b1b"));
+     panel.add(element5);
+
+     JLabel element6 = new JLabel("Quantidade em estoque:");
+     element6.setBounds(113, 226, 176, 18);
+     element6.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element6.setForeground(Color.decode("#1b1b1b"));
+     panel.add(element6);
+
+     JLabel element7 = new JLabel("Código de barras:");
+     element7.setBounds(116, 258, 148, 18);
+     element7.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element7.setForeground(Color.decode("#1b1b1b"));
+     panel.add(element7);
+
+     JTextField element8 = new JTextField("");
+     element8.setBounds(285, 225, 313, 23);
+     element8.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element8.setBackground(Color.decode("#ffffff"));
+     element8.setForeground(Color.decode("#737674"));
+     element8.setBorder(new RoundedBorder(2, Color.decode("#626262"), 1));
+     OnFocusEventHelper.setOnFocusText(element8, "", Color.decode("#1b1b1b"),   Color.decode("#737674"));
+     panel.add(element8);
+
+     JTextField element9 = new JTextField("");
+     element9.setBounds(286, 67, 313, 23);
+     element9.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element9.setBackground(Color.decode("#ffffff"));
+     element9.setForeground(Color.decode("#737674"));
+     element9.setBorder(new RoundedBorder(2, Color.decode("#626262"), 1));
+     OnFocusEventHelper.setOnFocusText(element9, "", Color.decode("#1b1b1b"),   Color.decode("#737674"));
+     panel.add(element9);
+
+     JTextField element10 = new JTextField("");
+     element10.setBounds(285, 99, 313, 23);
+     element10.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element10.setBackground(Color.decode("#ffffff"));
+     element10.setForeground(Color.decode("#737674"));
+     element10.setBorder(new RoundedBorder(2, Color.decode("#626262"), 1));
+     OnFocusEventHelper.setOnFocusText(element10, "", Color.decode("#1b1b1b"),   Color.decode("#737674"));
+     panel.add(element10);
+
+     JTextField element11 = new JTextField("");
+     element11.setBounds(286, 141, 313, 23);
+     element11.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element11.setBackground(Color.decode("#ffffff"));
+     element11.setForeground(Color.decode("#737674"));
+     element11.setBorder(new RoundedBorder(2, Color.decode("#626262"), 1));
+     OnFocusEventHelper.setOnFocusText(element11, "", Color.decode("#1b1b1b"),   Color.decode("#737674"));
+     panel.add(element11);
+
+     JTextField element12 = new JTextField("");
+     element12.setBounds(284, 185, 313, 23);
+     element12.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element12.setBackground(Color.decode("#ffffff"));
+     element12.setForeground(Color.decode("#737674"));
+     element12.setBorder(new RoundedBorder(2, Color.decode("#626262"), 1));
+     OnFocusEventHelper.setOnFocusText(element12, "", Color.decode("#1b1b1b"),   Color.decode("#737674"));
+     panel.add(element12);
+
+     JTextField element13 = new JTextField("");
+     element13.setBounds(284, 259, 313, 23);
+     element13.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element13.setBackground(Color.decode("#ffffff"));
+     element13.setForeground(Color.decode("#737674"));
+     element13.setBorder(new RoundedBorder(2, Color.decode("#626262"), 1));
+     OnFocusEventHelper.setOnFocusText(element13, "", Color.decode("#1b1b1b"),   Color.decode("#737674"));
+     panel.add(element13);
+
+     JButton element14 = new JButton("Salvar");
+     element14.setBounds(311, 316, 106, 29);
+     element14.setBackground(Color.decode("#ffffff"));
+     element14.setForeground(Color.decode("#1b1b1b"));
+     element14.setFont(CustomFontLoader.loadFont("./resources/fonts/Lexend.ttf", 14));
+     element14.setBorder(new RoundedBorder(4, Color.decode("#626262"), 1));
+     element14.setFocusPainted(false);
+     OnClickEventHelper.setOnClickColor(element14, Color.decode("#c2c2c2"), Color.decode("#ffffff"));
+     panel.add(element14);
+
+     frame.add(panel);
+     frame.setVisible(true);
+
+  }
+}
